@@ -56,14 +56,14 @@ class AssetModel
         $values = $this->em->getRepository(Asset::class)->getAllValuesGroupedByCurrencies($id);
         foreach ($values as $key => $value){
             $result[$value['currency']]['value'] = $value['value'];
-            $usdRate = $this->exchangeService->getExchangeRate($value['currency'],$currency);
-            $result[$value['currency']]['USD Rate'] = round($usdRate,2);
+            $rate = $this->exchangeService->getExchangeRate($value['currency'],$currency);
+            $result[$value['currency']][$rate->getCurrency()] = round($rate->getRate(),2);
 
-            $totalUsd =round($value['value'] * $usdRate ,2);
-            $result[$value['currency']]['USD'] = $totalUsd;
-            $total += $totalUsd;
+            $exchangeValue =round($value['value'] * $rate->getRate() ,2);
+            $result[$value['currency']][$rate->getCurrency()] = $exchangeValue;
+            $total += $exchangeValue;
         }
-        $result['Total USD'] = $total;
+        $result['Total'] = $total;
         return $result;
     }
 }
