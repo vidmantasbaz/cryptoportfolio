@@ -1,5 +1,6 @@
 <?php
 
+declare(strict_types=1);
 
 namespace App\Provider;
 
@@ -16,16 +17,18 @@ class CryptoWatExchangeProvider implements ExchangeProvider
      * @param string $to
      * @return CurrencyRateResponseDto
      */
-    public function getExchangeRate(string $from, string $to): CurrencyRateResponseDto
+    public function getResponse(string $from, string $to): CurrencyRateResponseDto
     {
         $pair = $from . $to;
         $url = $this->getEndpoint($pair, self::PRICE_ENDPOINT);
         $output = $this->request($url);
         $currencyRateDto = new CurrencyRateResponseDto($to, $output);
-        return $this->normalize($currencyRateDto);
+        $currencyRateDto->setResponse(json_decode($currencyRateDto->getRawResponse(), true));
+
+        return $currencyRateDto;
     }
 
-    public function isValid(CurrencyRateResponseDto $currencyRateResponseDto): bool
+    public function isResponseValid(CurrencyRateResponseDto $currencyRateResponseDto): bool
     {
         $response = $currencyRateResponseDto->getResponse();
 
@@ -37,14 +40,12 @@ class CryptoWatExchangeProvider implements ExchangeProvider
         return false;
     }
 
-
     public function setRate(CurrencyRateResponseDto $currencyRateResponseDto): CurrencyRateResponseDto
     {
         $response = $currencyRateResponseDto->getResponse();
         $currencyRateResponseDto->setRate($response['result']['price']);
 
         return $currencyRateResponseDto;
-
     }
 
     /**
@@ -63,18 +64,6 @@ class CryptoWatExchangeProvider implements ExchangeProvider
         curl_close($ch);
 
         return $output;
-    }
-
-    /**
-     * @param CurrencyRateResponseDto $currencyRateResponseDto
-     * @return CurrencyRateResponseDto
-     */
-    private function normalize(CurrencyRateResponseDto $currencyRateResponseDto)
-    {
-        $rawResponse = $currencyRateResponseDto->getRawResponse();
-        $currencyRateResponseDto->setResponse(json_decode($rawResponse, true));
-
-        return $currencyRateResponseDto;
     }
 
     /**
