@@ -22,7 +22,7 @@ class CryptoWatExchangeProvider implements ExchangeProvider
         $pair = $from . $to;
         $url = $this->getEndpoint($pair, self::PRICE_ENDPOINT);
         $output = $this->request($url);
-        $currencyRateDto = new CurrencyRateResponseDto($to, $output);
+        $currencyRateDto = new CurrencyRateResponseDto($output);
         $currencyRateDto->setResponse(json_decode($currencyRateDto->getRawResponse(), true));
 
         return $currencyRateDto;
@@ -40,12 +40,14 @@ class CryptoWatExchangeProvider implements ExchangeProvider
         return false;
     }
 
-    public function setRate(CurrencyRateResponseDto $currencyRateResponseDto): CurrencyRateResponseDto
+    /**
+     * @param CurrencyRateResponseDto $currencyRateResponseDto
+     * @return float
+     */
+    public function getRate(CurrencyRateResponseDto $currencyRateResponseDto): float
     {
         $response = $currencyRateResponseDto->getResponse();
-        $currencyRateResponseDto->setRate($response['result']['price']);
-
-        return $currencyRateResponseDto;
+        return $response['result']['price'];
     }
 
     /**

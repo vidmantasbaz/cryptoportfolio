@@ -13,6 +13,5 @@ interface ExchangeProvider
 
     public function isResponseValid(CurrencyRateResponseDto $currencyRateResponseDto): bool;
 
-    public function setRate(CurrencyRateResponseDto $currencyRateResponseDto): CurrencyRateResponseDto;
-
+    public function getRate(CurrencyRateResponseDto $currencyRateResponseDto): float;
 }
