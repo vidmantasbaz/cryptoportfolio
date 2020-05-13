@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
@@ -10,7 +12,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  */
 class Asset
 {
-     const CURRENCIES = ['fiction', 'non-fiction'];
+    private const CURRENCIES = ['BTC', 'ETH', 'I0TA'];
 
     /**
      * @ORM\Id()
@@ -27,7 +29,7 @@ class Asset
 
     /**
      * @ORM\Column(type="string")
-     * @Assert\Choice(message="Choose a valid genre.", choices=Asset::CURRENCIES)
+     * @Assert\Choice(message="Choose a valid currency.", choices=Asset::CURRENCIES)
      */
     private $currency;
 

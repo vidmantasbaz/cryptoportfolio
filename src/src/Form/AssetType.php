@@ -1,6 +1,8 @@
 <?php
-namespace App\Form;
 
+declare(strict_types=1);
+
+namespace App\Form;
 
 use App\Entity\Asset;
 use Symfony\Component\Form\AbstractType;
@@ -24,9 +26,9 @@ class AssetType extends AbstractType
                     'I0TA' => 'I0TA',
                 ]
             ])
-            ->add('value', IntegerType::class)
-        ;
+            ->add('value', IntegerType::class);
     }
+
     public function configureOptions(OptionsResolver $resolver)
     {
         $resolver->setDefaults(array(
@@ -34,6 +36,7 @@ class AssetType extends AbstractType
             'csrf_protection' => false,
         ));
     }
+
     public function getName()
     {
         return 'asset';

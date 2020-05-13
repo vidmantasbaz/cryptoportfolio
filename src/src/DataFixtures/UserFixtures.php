@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\DataFixtures;
 
 use App\Entity\User;
@@ -23,7 +25,10 @@ class UserFixtures extends Fixture
     {
         $user = new User();
         $user->setUsername('jhon');
-            $password = $this->encoder->encodePassword($user, 'jhon234');
+
+        // use encoder to encode password
+        $password = $this->encoder->encodePassword($user, 'jhon234');
+
         $user->setPassword($password);
         $manager->persist($user);
 
