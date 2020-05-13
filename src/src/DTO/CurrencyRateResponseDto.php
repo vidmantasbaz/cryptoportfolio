@@ -1,11 +1,14 @@
 <?php
 
+declare(strict_types=1);
 
 namespace App\DTO;
 
-
 class CurrencyRateResponseDto
 {
+    /** @var string */
+    private $currency;
+
     /** @var string */
     private  $rawResponse;
 
@@ -13,9 +16,18 @@ class CurrencyRateResponseDto
     private  $response;
 
 
-    public  function __construct(string $rawResponse)
+    public  function __construct( string $currency, string $rawResponse)
     {
+        $this->currency = $currency;
         $this->rawResponse = $rawResponse;
+    }
+
+    /**
+     * @return string
+     */
+    public function getCurrency(): string
+    {
+        return $this->currency;
     }
 
     /**

@@ -5,12 +5,21 @@ declare(strict_types=1);
 namespace App\Provider;
 
 use App\DTO\CurrencyRateResponseDto;
+use Symfony\Component\Cache\Adapter\AdapterInterface;
 
 class CryptoWatExchangeProvider implements ExchangeProvider
 {
 
     private const URL = 'https://api.cryptowat.ch/markets/kraken';
     private const PRICE_ENDPOINT = 'price';
+
+    /** @var AdapterInterface */
+    private $cache;
+
+    public function __construct(AdapterInterface $cache)
+    {
+        $this->cache = $cache;
+    }
 
     /**
      * @param string $from
@@ -22,7 +31,7 @@ class CryptoWatExchangeProvider implements ExchangeProvider
         $pair = $from . $to;
         $url = $this->getEndpoint($pair, self::PRICE_ENDPOINT);
         $output = $this->request($url);
-        $currencyRateDto = new CurrencyRateResponseDto($output);
+        $currencyRateDto = new CurrencyRateResponseDto($to, $output);
         $currencyRateDto->setResponse(json_decode($currencyRateDto->getRawResponse(), true));
 
         return $currencyRateDto;
@@ -43,10 +52,18 @@ class CryptoWatExchangeProvider implements ExchangeProvider
     /**
      * @param CurrencyRateResponseDto $currencyRateResponseDto
      * @return float
+     * @throws \Psr\Cache\InvalidArgumentException
      */
     public function getRate(CurrencyRateResponseDto $currencyRateResponseDto): float
     {
         $response = $currencyRateResponseDto->getResponse();
+
+        $rate = $this->cache->getItem('rate_' . $currencyRateResponseDto->getCurrency());
+        if (!$rate->isHit()) {
+            $rate->set($response['result']['price']);
+            $rate->expiresAfter(\DateInterval::createFromDateString('1 hour'));
+            $this->cache->save($rate);
+        }
         return $response['result']['price'];
     }
 
