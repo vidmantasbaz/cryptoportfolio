@@ -21,19 +21,21 @@ class Asset
 
     /**
      * @ORM\Column(type="string")\
-     * @Assert\NotBlank(message="Label required must not be blank")
+     * @Assert\NotBlank(message="Must not be blank")
      */
     private $label;
 
     /**
-     * @ORM\Column(type="string")
+     * @ORM\Column(type="string", length=4)
      * @Assert\Choice(choices = { "BTC", "ETH", "I0TA" }, message="Choose a valid currency.")
+     * @Assert\NotBlank(message="Must not be blank")
      */
     private $currency;
 
     /**
      * @ORM\Column(type="float")
      * @Assert\Positive(message="Value must be positive")
+     *  @Assert\NotBlank(message="Must not be blank")
      */
     private $value;
 

@@ -18,11 +18,11 @@ class ApiExceptionDto
 
     /**
      * ApiExceptionDto constructor.
-     * @param string $statusCode
+     * @param int $statusCode
      * @param string $message
      * @param array $errors
      */
-    public function __construct(string $statusCode, string $message, array $errors = [])
+    public function __construct(int $statusCode, string $message, array $errors = [])
     {
         $this->statusCode = $statusCode;
         $this->message = $message;
@@ -35,6 +35,14 @@ class ApiExceptionDto
     public function getStatusCode(): int
     {
         return $this->statusCode;
+    }
+
+    /**
+     * @return string
+     */
+    public function getMessage(): string
+    {
+        return $this->message;
     }
 
     /**

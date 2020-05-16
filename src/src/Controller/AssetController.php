@@ -22,6 +22,7 @@ use Symfony\Component\Routing\Annotation\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 
 /**
+ * @Route("/api")
  * @IsGranted("ROLE_USER")
  */
 class AssetController extends AbstractController
