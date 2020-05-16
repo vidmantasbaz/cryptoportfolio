@@ -28,7 +28,7 @@ services:
         - crypto_vat: '@App\Provider\CryptoWatExchangeProvider'
 
     api_exception_subscriber:
-      class: App\EventSubsciber\ApiExceptionSubscriber
+      class: App\EventSubscriber\ApiExceptionSubscriber
       arguments: []
       tags:
         - { name: kernel.event_subscriber }
