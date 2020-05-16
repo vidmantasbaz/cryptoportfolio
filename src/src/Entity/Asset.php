@@ -12,8 +12,6 @@ use Symfony\Component\Validator\Constraints as Assert;
  */
 class Asset
 {
-    private const CURRENCIES = ['BTC', 'ETH', 'I0TA'];
-
     /**
      * @ORM\Id()
      * @ORM\GeneratedValue()
@@ -29,7 +27,7 @@ class Asset
 
     /**
      * @ORM\Column(type="string")
-     * @Assert\Choice(message="Choose a valid currency.", choices=Asset::CURRENCIES)
+     * @Assert\Choice(choices = { "BTC", "ETH", "I0TA" }, message="Choose a valid currency.")
      */
     private $currency;
 

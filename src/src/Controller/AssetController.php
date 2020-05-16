@@ -1,35 +1,50 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Controller;
 
 use App\Entity\Asset;
 use App\Entity\User;
+use App\Exception\ApiException;
+use App\Exception\AssetException;
+use App\Exception\AssetNotFoundException;
+use App\Exception\FormValidationException;
 use App\Form\AssetType;
-use App\Model\AssetModel;
 use App\Service\Exceptions\ValidProviderNotFound;
+use App\Service\ExchangeService;
+use Doctrine\ORM\EntityManagerInterface;
+use http\Exception\UnexpectedValueException;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 
 /**
- * @Route("/api")
+ * @IsGranted("ROLE_USER")
  */
 class AssetController extends AbstractController
 {
-    /** @var AssetModel */
-    private $model;
+    /** @var ExchangeService */
+    private $service;
 
-    public function __construct(AssetModel $assetModel)
+    /** @var EntityManagerInterface */
+    private $em;
+
+    /**
+     * AssetController constructor.
+     * @param ExchangeService $service
+     * @param EntityManagerInterface $em
+     */
+    public function __construct(ExchangeService $service, EntityManagerInterface $em)
     {
-        $this->model = $assetModel;
+        $this->service = $service;
+        $this->em = $em;
     }
-
 
     /**
      * @Route("/create", name="create", methods={"POST"})
-     * @IsGranted("ROLE_USER")
      */
     public function create(Request $request)
     {
@@ -41,139 +56,124 @@ class AssetController extends AbstractController
             /** @var User $user */
             $user = $this->getUser();
             $asset->setUser($user);
-
-            $this->model->saveAsset($asset);
-
+            $this->saveAsset($asset);
             $message = 'User [%s] added asset: %s';
-            $data = [
-                'message' => sprintf($message, $user->getUsername(), $asset->getLabel())
-            ];
-            return new JsonResponse([$data]);
+            return $this->json(['message' => sprintf($message, $user->getUsername(), $asset->getLabel())]);
 
         }
-        $errors = [];
-        foreach ($form->getErrors(true, true) as $error) {
-            $errors[] = $error->getMessage();
-        }
-
-        $data = [
-            'type' => 'validation_error',
-            'title' => 'There was a validation error',
-            'errors' => $errors
-        ];
-        return new JsonResponse($data, 400);
+        throw new FormValidationException($this->getErrors($form));
     }
 
     /**
-     * @Route("/update/{id}", name="update", methods={"POST"})
-     * @IsGranted("ROLE_USER")
+     * @Route("/update/{id}", name="update", methods={"PUT"})
      */
     public function update(Request $request, $id)
     {
         $data = json_decode($request->getContent(), true);
-        $asset = $this->model->findById($id);
+        $asset = $this->em->getRepository(Asset::class)->find($id);
         $user = $this->getUser();
 
         $form = $this->createForm(AssetType::class, $asset);
 
         if ($asset instanceof Asset) {
-            if($user->getId() !== $asset->getUser()->getId()){
-                $data = [
-                    'status' => 'error',
-                    'message' => 'Cant delete, asset create by different user',
-                ];
-                return new JsonResponse($data, 400);
+            if ($user->getId() !== $asset->getUser()->getId()) {
+                throw new AssetException(ApiException::ASSET_NOT_USERS);
             }
             $form->submit($data);
             if ($form->isValid() && $form->isSubmitted()) {
                 /** @var User $user */
                 $asset->setUser($user);
-
-                $this->model->saveAsset($asset);
+                $this->saveAsset($asset);
 
                 $message = 'User [%s] updated asset: %s';
                 $data = [
                     'status' => 'success',
                     'message' => sprintf($message, $user->getUsername(), $asset->getLabel())
                 ];
-                return new JsonResponse([$data]);
+                return $this->json([$data]);
 
             }
-            $errors = [];
-            foreach ($form->getErrors() as $error) {
-                $errors[] = $error->getMessage();
-            }
-
-            $data = [
-                'type' => 'validation_error',
-                'title' => 'There was a validation error',
-                'errors' => $errors
-            ];
-            return new JsonResponse($data, 400);
+            throw new FormValidationException($this->getErrors($form));
         }
-
-        $data = [
-            'error',
-            'message' => 'Asset not found',
-        ];
-        return new JsonResponse($data, 400);
+        throw new AssetException(ApiException::ASSET_NOT_FOUND);
     }
 
-
     /**
-     * @Route("/delete/{id}", name="delete", methods={"GET"})
+     * @Route("/delete/{id}", name="delete", methods={"DELETE"})
      * @IsGranted("ROLE_USER")
      */
     public function delete(Request $request, $id)
     {
-       $asset = $this->model->findById($id);
+        $asset = $this->enti->findById($id);
         if ($asset instanceof Asset) {
             $label = $asset->getLabel();
-
             $user = $this->getUser();
-
-            if($user->getId() !== $asset->getUser()->getId()){
-                $data = [
-                    'status' => 'error',
-                    'message' => 'Cant delete, asset created by different user',
-                ];
-                return new JsonResponse($data, 400);
+            if ($user->getId() !== $asset->getUser()->getId()) {
+                throw new AssetException(ApiException::ASSET_NOT_USERS);
             }
 
-            $this->model->delete($asset);
+            $this->deleteAsset($asset);
 
             $message = 'Asset [%s] was delete';
             $data = [
                 'status' => 'success',
                 'message' => sprintf($message, $label)
             ];
-            return new JsonResponse([$data]);
-
+            return $this->json($data);
         }
-
-        $data = [
-            'status' => 'error',
-            'message' => 'Asset not found',
-        ];
-        return new JsonResponse($data, 400);
+        throw new AssetException(ApiException::ASSET_NOT_FOUND);
     }
+
     /**
      * @Route("/get_values/{currency}", name="get_values", methods={"GET"})
-     * @IsGranted("ROLE_USER")
      */
     public function getValues(Request $request, $currency)
     {
         try {
-            $values =$this->model->getUserCurrencyValues($this->getUser()->getId(),$currency);
-        }catch (ValidProviderNotFound $e) {
-            $data = [
-                'status' => 'error',
-                'message' => $e->getMessage(),
-            ];
-            return new JsonResponse($data, 400);
+            $values = $this->service->getUserCurrencyValues($this->getUser()->getId(), $currency);
+        } catch (ValidProviderNotFound $e) {
+            return $this->json([$e->getMessage()], 400);
         }
 
-        return new JsonResponse($values);
+        return $this->json([$values]);
+    }
+
+    /**
+     * @param Asset $asset
+     */
+    private function saveAsset(Asset $asset)
+    {
+        $this->em->persist($asset);
+        $this->em->flush();
+    }
+
+    /**
+     * @param Asset $asset
+     */
+    private function deleteAsset(Asset $asset)
+    {
+        $this->em->remove($asset);
+        $this->em->flush();
+    }
+
+    /**
+     * @param FormInterface $form
+     * @return array
+     */
+    public function getErrors(FormInterface $form): array
+    {
+        $errors = [];
+        foreach ($form->getErrors() as $error) {
+            $errors[] = $error->getMessage();
+        }
+        foreach ($form->all() as $childForm) {
+            if ($childForm instanceof FormInterface) {
+                if ($childErrors = $this->getErrors($childForm)) {
+                    $errors[$childForm->getName()] = $childErrors;
+                }
+            }
+        }
+        return $errors;
     }
 
 }

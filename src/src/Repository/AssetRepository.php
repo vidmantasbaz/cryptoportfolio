@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Repository;
 
 use App\Entity\Asset;
@@ -19,14 +21,14 @@ class AssetRepository extends ServiceEntityRepository
         parent::__construct($registry, Asset::class);
     }
 
-     public function  getAllValuesGroupedByCurrencies($id)
-     {
-         return $this->createQueryBuilder('a')
-             ->select('SUM(a.value) as value', 'a.currency')
-             ->where('a.user = :id')->setParameter('id', $id)
-             ->groupBy('a.currency')
-             ->getQuery()
-             ->getScalarResult()
-             ;
-     }
+    public function getAllValuesGroupedByCurrencies($id): array
+    {
+        return $this->createQueryBuilder('a')
+            ->select('SUM(a.value) as value', 'a.currency')
+            ->where('a.user = :id')->setParameter('id', $id)
+            ->groupBy('a.currency')
+            ->getQuery()
+            ->getScalarResult();
+    }
+
 }

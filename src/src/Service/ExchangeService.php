@@ -60,7 +60,7 @@ class ExchangeService
      * @throws ValidProviderNotFound
      * @throws \Psr\Cache\InvalidArgumentException
      */
-    public function getUserCurrencyValues(int $id, string $currency)
+    public function getUserCurrencyValues(int $id, string $currency): array
     {
         $result = [];
         $total = 0;
