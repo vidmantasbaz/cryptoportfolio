@@ -69,7 +69,7 @@ class CryptoWatExchangeProvider implements ExchangeProvider
             $rate->expiresAfter(\DateInterval::createFromDateString('1 hour'));
             $this->cache->save($rate);
         }
-        return $response['result']['price'];
+        return $rate->get();
     }
 
     /**

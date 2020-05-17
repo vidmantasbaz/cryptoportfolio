@@ -32,3 +32,6 @@ services:
       arguments: []
       tags:
         - { name: kernel.event_subscriber }
+
+    app.logout.success.hadler:
+      class: App\Handler\LogoutHandler

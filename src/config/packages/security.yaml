@@ -21,6 +21,7 @@ security:
                     - App\Security\LoginAuthenticator
             logout:
               path: logout
+              success_handler: app.logout.success.hadler
 
     access_control:
         # - { path: ^/admin, roles: ROLE_ADMIN }

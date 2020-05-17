@@ -1,2 +1,2 @@
 logout:
-  path: api/logout
+  path: /api/logout

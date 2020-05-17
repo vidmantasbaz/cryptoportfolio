@@ -22,11 +22,4 @@ class UserController extends AbstractController
             return $this->json(['result' => $user->getUsername()]);
 
     }
-
-    /**
-     * @Route("/logout", name="logout", methods={"GET"})
-     */
-    public function logout()
-    {
-    }
 }
