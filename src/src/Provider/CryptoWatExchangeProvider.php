@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Provider;
 
 use App\DTO\CurrencyRateResponseDto;
+use App\Service\CurlRequest;
 use Symfony\Component\Cache\Adapter\AdapterInterface;
 
 class CryptoWatExchangeProvider implements ExchangeProvider
@@ -16,9 +17,13 @@ class CryptoWatExchangeProvider implements ExchangeProvider
     /** @var AdapterInterface */
     private $cache;
 
-    public function __construct(AdapterInterface $cache)
+    /** @var CurlRequest */
+    private $curlRequest;
+
+    public function __construct(AdapterInterface $cache, CurlRequest $curlRequest)
     {
         $this->cache = $cache;
+        $this->curlRequest = $curlRequest;
     }
 
     /**
@@ -73,14 +78,12 @@ class CryptoWatExchangeProvider implements ExchangeProvider
      */
     private function request(string $url)
     {
-        $ch = curl_init();
+        $this->curlRequest->setHandel($url);
+        $this->curlRequest->setOption(CURLOPT_RETURNTRANSFER, true);
+        $this->curlRequest->setOption(CURLOPT_FOLLOWLOCATION, true);
+        $output = $this->curlRequest->execute();
 
-        curl_setopt($ch, CURLOPT_URL, $url);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
-        $output = curl_exec($ch);
-
-        curl_close($ch);
+        $this->curlRequest->close();
 
         return $output;
     }
