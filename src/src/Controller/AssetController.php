@@ -8,7 +8,6 @@ use App\Entity\Asset;
 use App\Entity\User;
 use App\Exception\ApiException;
 use App\Exception\AssetException;
-use App\Exception\AssetNotFoundException;
 use App\Exception\FormValidationException;
 use App\Form\AssetType;
 use App\Service\Exceptions\ValidProviderNotFound;
@@ -72,14 +71,14 @@ class AssetController extends AbstractController
     {
         $data = json_decode($request->getContent(), true);
         $asset = $this->em->getRepository(Asset::class)->find($id);
-        $user = $this->getUser();
-
-        $form = $this->createForm(AssetType::class, $asset);
 
         if ($asset instanceof Asset) {
+            $user = $this->getUser();
             if ($user->getId() !== $asset->getUser()->getId()) {
                 throw new AssetException(ApiException::ASSET_NOT_USERS);
             }
+
+            $form = $this->createForm(AssetType::class, $asset);
             $form->submit($data);
             if ($form->isValid() && $form->isSubmitted()) {
                 /** @var User $user */
@@ -88,10 +87,9 @@ class AssetController extends AbstractController
 
                 $message = 'User [%s] updated asset: %s';
                 $data = [
-                    'status' => 'success',
                     'message' => sprintf($message, $user->getUsername(), $asset->getLabel())
                 ];
-                return $this->json([$data]);
+                return $this->json($data);
 
             }
             throw new FormValidationException($this->getErrors($form));
@@ -105,7 +103,7 @@ class AssetController extends AbstractController
      */
     public function delete(Request $request, $id)
     {
-        $asset = $this->enti->findById($id);
+        $asset = $this->em->getRepository(Asset::class)->find($id);
         if ($asset instanceof Asset) {
             $label = $asset->getLabel();
             $user = $this->getUser();
@@ -116,10 +114,7 @@ class AssetController extends AbstractController
             $this->deleteAsset($asset);
 
             $message = 'Asset [%s] was delete';
-            $data = [
-                'status' => 'success',
-                'message' => sprintf($message, $label)
-            ];
+            $data = ['message' => sprintf($message, $label)];
             return $this->json($data);
         }
         throw new AssetException(ApiException::ASSET_NOT_FOUND);
@@ -136,7 +131,7 @@ class AssetController extends AbstractController
             return $this->json([$e->getMessage()], 400);
         }
 
-        return $this->json([$values]);
+        return $this->json($values);
     }
 
     /**
