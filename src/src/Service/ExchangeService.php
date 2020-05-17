@@ -68,9 +68,9 @@ class ExchangeService
         foreach ($values as $key => $value) {
             $rate = $this->getExchangeRate($value['currency'], $currency);
             $result[$value['currency']]['value'] = $value['value'];
-            $result[$value['currency']][$currency] = round($rate, 2);
+            $result[$value['currency']]['rate_'.strtolower($currency)] = round($rate, 2);
             $exchangeValue = round($value['value'] * $rate, 2);
-            $result[$value['currency']][$currency] = $exchangeValue;
+            $result[$value['currency']][strtolower($currency)] = $exchangeValue;
             $total += $exchangeValue;
         }
         $result['Total'] = $total;

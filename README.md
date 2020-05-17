@@ -17,12 +17,13 @@ endpoints:
 
   #/api/create 
    Create assest json request data needed 
-   
+   ```json
   {
 	"label": "test ETHt",
 	"currency":"ETH",
 	"value":8
 }
+```
 
 #/api/update/{id}
   
@@ -35,11 +36,13 @@ Delete existing asset
 #/api/get_values/{currency} 
 
 Get values of asset total and individual
-
+```json
 {
     "BTC": {
         "value": "19",
-        "USD": 180405
+        "rate_usd": 9520.8,
+        "usd": 180895.2
     },
-    "Total": 180405
+    "Total": 180895.2
 }
+```
