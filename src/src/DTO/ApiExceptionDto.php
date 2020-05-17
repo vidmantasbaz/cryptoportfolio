@@ -6,7 +6,6 @@ namespace App\DTO;
 
 class ApiExceptionDto
 {
-
     /** @var int */
     private $statusCode;
 
@@ -55,6 +54,5 @@ class ApiExceptionDto
             $this->message,
             $this->errors
         ];
-
     }
 }

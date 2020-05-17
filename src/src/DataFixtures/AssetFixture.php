@@ -14,8 +14,8 @@ use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 
 class AssetFixture extends Fixture implements DependentFixtureInterface
 {
-    /** @var UserPasswordEncoderInterface  */
-    private  $encoder;
+    /** @var UserPasswordEncoderInterface */
+    private $encoder;
 
     /** @var EntityManagerInterface */
     private $em;
@@ -31,7 +31,7 @@ class AssetFixture extends Fixture implements DependentFixtureInterface
 
         /** @var UserRepository $usrtRerp */
         $usrtRerp = $this->em->getRepository(User::class);
-        $user  = $usrtRerp->findFirst();
+        $user = $usrtRerp->findFirst();
         $asset = (new Asset())
             ->setUser($user)
             ->setValue(1)

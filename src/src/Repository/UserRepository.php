@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Repository;
 
 use App\Entity\User;
@@ -49,8 +51,7 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
             ->orderBy('u.id', 'ASC')
             ->setMaxResults(1)
             ->getQuery()
-            ->getOneOrNullResult()
-        ;
+            ->getOneOrNullResult();
     }
 
 }

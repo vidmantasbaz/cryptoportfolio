@@ -10,13 +10,13 @@ class CurrencyRateResponseDto
     private $currency;
 
     /** @var string */
-    private  $rawResponse;
+    private $rawResponse;
 
     /** @var array|null */
-    private  $response;
+    private $response;
 
 
-    public  function __construct( string $currency, string $rawResponse)
+    public function __construct(string $currency, string $rawResponse)
     {
         $this->currency = $currency;
         $this->rawResponse = $rawResponse;
@@ -49,7 +49,7 @@ class CurrencyRateResponseDto
     /**
      * @param array|null $response
      */
-    public function setResponse(array $response = null ): void
+    public function setResponse(array $response = null): void
     {
         $this->response = $response;
     }

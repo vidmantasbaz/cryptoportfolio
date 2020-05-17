@@ -35,7 +35,7 @@ class Asset
     /**
      * @ORM\Column(type="float")
      * @Assert\Positive(message="Value must be positive")
-     *  @Assert\NotBlank(message="Must not be blank")
+     * @Assert\NotBlank(message="Must not be blank")
      */
     private $value;
 

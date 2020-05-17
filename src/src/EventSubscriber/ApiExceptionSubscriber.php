@@ -22,7 +22,7 @@ class ApiExceptionSubscriber implements EventSubscriberInterface
     public function onKernelException(ExceptionEvent $event)
     {
         $e = $event->getThrowable();
-        if($e instanceof ApiException){
+        if ($e instanceof ApiException) {
             $apiException = $e->getApiDto();
             $response = new JsonResponse(
                 $apiException->toArray(),

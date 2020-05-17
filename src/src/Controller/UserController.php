@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Controller;
 
 use App\Entity\User;
@@ -17,9 +19,9 @@ class UserController extends AbstractController
      */
     public function login()
     {
-            /** @var User $user */
-            $user = $this->getUser();
-            return $this->json(['result' => $user->getUsername()]);
+        /** @var User $user */
+        $user = $this->getUser();
+        return $this->json(['result' => $user->getUsername()]);
 
     }
 }
